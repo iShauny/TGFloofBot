@@ -1,3 +1,8 @@
+# TGFloofbot stuff
+config.yaml
+TGFloofbotData.db
+tgfloofbot.code-workspace
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
