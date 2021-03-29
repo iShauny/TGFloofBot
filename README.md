@@ -1,2 +1,0 @@
-# TGFloofBot
-Floofbot Telegram Bot
