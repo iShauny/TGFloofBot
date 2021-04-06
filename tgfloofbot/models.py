@@ -26,6 +26,7 @@ class Config(pydantic.BaseSettings):
     debug: bool = pydantic.Field(False, description="Show debug output")
     log: LogFileConfig = pydantic.Field(LogFileConfig(), description="Log config")
     database: pathlib.Path = pydantic.Field(..., description="Database file path")
+    group_id: int = pydantic.Field(..., description="Main group ID")
 
 
 @dataclasses.dataclass

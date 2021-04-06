@@ -2,3 +2,4 @@
 
 token: "<your api token here>"
 database: "TGFloofbotData.db"
+group_id: 0 # The main group ID that can be used for certain administration commands
