@@ -172,7 +172,9 @@ def command(
                     "Command requires admin, but user "
                     f"{update.effective_user} is not an admin"
                 )
-                return
+                raise exceptions.FloofbotPermissionsError(
+                    "This command can only be used by administrators"
+                )
 
         if parser:
             message_entities = update.effective_message.entities
