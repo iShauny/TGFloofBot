@@ -6,6 +6,7 @@ import typing
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import pydantic
+import telegram
 import telegram.ext
 import yaml
 
@@ -85,10 +86,20 @@ def command(
     *,
     name: Optional[str] = None,
     help: Optional[str] = None,
+    requires_chat: bool = True,
+    requires_user: bool = True,
+    admin: bool = False,
 ) -> Callable:
     """Decorator for tagging functions as commands"""
     if not function:
-        return functools.partial(command, name=name, help=help)
+        return functools.partial(
+            command,
+            name=name,
+            help=help,
+            requires_chat=requires_chat,
+            requires_user=requires_user,
+            admin=admin,
+        )
 
     name = name or function.__name__
     if name in commands:
@@ -141,9 +152,30 @@ def command(
         help_data=command_help_data,
     )
 
-    def wrapped_callback(update: Update, context: CallbackContext) -> Callable:
+    def wrapped_callback(update: Update, context: CallbackContext) -> Any:
         LOG.debug(f"Command invoked: {name}")
         kwargs = dict()
+
+        if requires_chat or admin:
+            if not update.effective_chat:
+                LOG.debug("Command requires a chat, but update did not include it")
+                return
+
+        if requires_user or admin:
+            if not update.effective_user:
+                LOG.debug("Command requires a user, but update did not include it")
+                return
+
+        if admin:
+            if not helpers.is_admin(client.global_client, update.effective_user.id):
+                LOG.debug(
+                    "Command requires admin, but user "
+                    f"{update.effective_user} is not an admin"
+                )
+                raise exceptions.FloofbotPermissionsError(
+                    "This command can only be used by administrators"
+                )
+
         if parser:
             message_entities = update.effective_message.entities
             shlex_split = shlex.split(
@@ -159,6 +191,7 @@ def command(
                 raise exceptions.FloofbotSyntaxError(
                     f"{parsing_error_text}\n\n{usage_text}"
                 )
+
         return function(client.global_client, update, context, **kwargs)
 
     if client.global_client:

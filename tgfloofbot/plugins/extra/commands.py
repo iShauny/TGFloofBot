@@ -54,6 +54,17 @@ def id_command(
     )
 
 
+@loader.command(help="Shows the group's ID number")
+def groupid(client: TGFloofbotClient, update: Update, context: CallbackContext) -> None:
+    text = (
+        f"Group ID for {em(update.effective_chat['title'])}: "
+        f"`{update.effective_chat.id}`"
+    )
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text=text, parse_mode=ParseMode.MARKDOWN_V2
+    )
+
+
 @loader.custom
 def help_custom(client: TGFloofbotClient):
 
