@@ -92,9 +92,9 @@ def administration_custom(client: TGFloofbotClient):
             return
 
         try: 
-            context.bot.send_message(chat_id=bad_user.id, text=f"You have been warned in {admin_chat.title} by {user.username}. Reason: {reason}")
+            context.bot.send_message(chat_id=bad_user.id, text=f"You have been warned in *{admin_chat.title}*\. Reason: *{reason}*", parse_mode="MarkdownV2")
         except Exception:
             context.bot.send_message(chat_id=chat.id, text="Unable to DM the user to notify them of their warning.")
 
-        context.bot.send_message(chat_id=chat.id, text=f"⚠️ | User {bad_user.name} warned by {user.username} with reason {reason}.")
+        context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} warned by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
 
