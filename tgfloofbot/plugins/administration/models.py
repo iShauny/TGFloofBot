@@ -15,3 +15,4 @@ class Warning(ORMBase):
     warned_by = Column(String(), nullable=False)
     warned_by_id = Column(Integer, nullable=False)
     reason = Column(String(), nullable=False)
+    is_usernote = Column(Boolean, default=False, nullable=False)
