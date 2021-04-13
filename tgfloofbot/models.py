@@ -2,7 +2,7 @@ import dataclasses
 import enum
 import pathlib
 
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import pydantic
 
@@ -26,7 +26,10 @@ class Config(pydantic.BaseSettings):
     debug: bool = pydantic.Field(False, description="Show debug output")
     log: LogFileConfig = pydantic.Field(LogFileConfig(), description="Log config")
     database: pathlib.Path = pydantic.Field(..., description="Database file path")
-    group_id: int = pydantic.Field(..., description="Main group ID")
+    main_group: int = pydantic.Field(..., description="The main group ID")
+    admin_groups: List[int] = pydantic.Field(
+        list(), description="Admin group IDs for the main group"
+    )
 
 
 @dataclasses.dataclass

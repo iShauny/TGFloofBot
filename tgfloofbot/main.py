@@ -47,6 +47,7 @@ def cli_start() -> None:
         config = models.Config(**raw_config)
     except Exception as err:
         LOG.exception("Config file cannot loaded:")
+        sys.exit(1)
     sys.exit(start(config))
 
 

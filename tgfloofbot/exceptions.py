@@ -19,3 +19,7 @@ class FloofbotLoaderException(FloofbotException):
 
 class FloofbotSyntaxError(FloofbotException):
     pass
+
+
+class FloofbotPermissionsError(FloofbotException):
+    title = "Permissions error"
