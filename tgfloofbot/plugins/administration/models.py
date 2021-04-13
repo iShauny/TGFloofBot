@@ -11,7 +11,7 @@ class Warning(ORMBase):
     date_added = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     forgiven = Column(Boolean, default=False, nullable=False)
     forgiven_by = Column(String(), nullable=True)
-    forgiven_by_id = Column(Integer, nullable=False)
+    forgiven_by_id = Column(Integer, nullable=True)
     warned_by = Column(String(), nullable=False)
     warned_by_id = Column(Integer, nullable=False)
     reason = Column(String(), nullable=False)
