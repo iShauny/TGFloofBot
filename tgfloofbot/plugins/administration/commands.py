@@ -60,10 +60,16 @@ def usernote_command(
     warn_helper(client, update, context, args, True)
 
 
-def warn_helper(client, update, context, args, is_note):
+def warn_helper(
+    client: TGFloofbotClient,
+    update: Update,
+    context: CallbackContext,
+    args: Union[UsernoteCommandArgs, WarnCommandArgs],
+    is_note: bool,
+) -> None:
     user = update.effective_user
     chat = update.effective_chat
-    admin_chat = _resolve_main_group_id(update, client)
+    admin_chat = _resolve_main_group_id(Update)
 
     if admin_chat.type != "group":  # group only command
         context.bot.send_message(
