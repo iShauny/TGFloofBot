@@ -93,6 +93,12 @@ def warn_helper(
     client.db.add(warning_entry)
     client.db.commit()
 
+    context.bot.send_message(
+        chat_id=chat.id,
+        text=f"*⚠️ User {em(bad_user.name)} {'noted' if is_note else 'warned'} by {em(user.username)} with reason {em(reason)}\.*",
+        parse_mode="MarkdownV2",
+    )
+
     if not is_note:
         try:
             context.bot.send_message(
@@ -102,9 +108,3 @@ def warn_helper(
             )
         except Exception as err:
             raise exceptions.WarningReasonDeliveryException(err)
-
-    context.bot.send_message(
-        chat_id=chat.id,
-        text=f"*⚠️ User {em(bad_user.name)} {'noted' if is_note else 'warned'} by {em(user.username)} with reason {em(reason)}\.*",
-        parse_mode="MarkdownV2",
-    )
