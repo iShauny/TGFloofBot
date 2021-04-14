@@ -33,9 +33,15 @@ def administration_custom(client: TGFloofbotClient):
 
     class WarnCommandArgs(pydantic.BaseModel):
         bad_user: Optional[str] = pydantic.Field(
-            None, description="Either a raw user ID or mention")
+            None, description="A raw user ID")
         warn_message: Optional[str] = pydantic.Field(
             None, description="The warning reason")
+
+    class UsernoteCommandArgs(pydantic.BaseModel):
+        bad_user: Optional[str] = pydantic.Field(
+            None, description="A raw user ID")
+        warn_message: Optional[str] = pydantic.Field(
+            None, description="The note")
 
     @loader.command(name="warn", help="warn a user", admin=True)
     def warn_command(
@@ -44,7 +50,20 @@ def administration_custom(client: TGFloofbotClient):
         context: CallbackContext,
         args: WarnCommandArgs
     ) -> None:
-        entities = update.effective_message.entities
+        warn_helper(client, update, context, args, False)
+        return
+
+    @loader.command(name="note", help="adds a moderation note for a user", admin=True)
+    def usernote_command(
+        client: TGFloofbotClient,
+        update: Update,
+        context: CallbackContext,
+        args: UsernoteCommandArgs
+    ) -> None:
+        warn_helper(client, update, context, args, True)
+        return
+
+    def warn_helper(client, update, context, args, is_note):
         user = update.effective_user
         chat = update.effective_chat
         admin_chat = _resolve_admin_group_id(Update)
@@ -53,13 +72,7 @@ def administration_custom(client: TGFloofbotClient):
             context.bot.send_message(chat_id=chat, text="This command can only be used for groups.")
             return
         
-        if len(entities) > 1 and entities[1].type in ("text_mention", "mention"):
-            bad_user = client.updater.bot.get_chat_member(chat_id=admin_chat.id, user_id=entities[1].user.id)
-            if args.warn_message:
-                reason = args.warn_message
-            else:
-                reason = "No reason provided."
-        elif args.bad_user:
+        if args.bad_user:
             try:
                 bad_user = client.updater.bot.get_chat_member(chat_id=admin_chat.id, user_id=args.bad_user).user  # type: ignore
                 if args.warn_message:
@@ -73,7 +86,6 @@ def administration_custom(client: TGFloofbotClient):
             context.bot.send_message(chat_id=chat.id, text="Invalid arguments. Please provide a user ID/mention and a reason.")
             return
 
-        context.bot.send_message(chat_id=chat.id, text=f"{bad_user.id}")
         try:
             warning_entry = models.Warning(
                 user_id=bad_user.id,
@@ -83,18 +95,21 @@ def administration_custom(client: TGFloofbotClient):
                 reason=reason
             )
 
+            if is_note:
+                warning_entry.is_usernote = True
+
             client.db.add(warning_entry)
             client.db.commit()
 
         except Exception as e:
-            LOG.error("Error occurred when attempting to insert a warning into the database: " + str(e))
-            context.bot.send_message(chat_id=chat.id, text="A fatal error occurred trying to insert the warning into the database.")
+            LOG.error("Error occurred when attempting to insert a {'warning' if is_note is False else 'usernote'} into the database: " + str(e))
+            context.bot.send_message(chat_id=chat.id, text="A fatal error occurred trying to insert the {'warning' if is_note is False else 'usernote'} into the database.")
             return
+        if not is_note:
+            try: 
+                context.bot.send_message(chat_id=bad_user.id, text=f"You have been warned in *{admin_chat.title}*\. Reason: *{reason}*", parse_mode="MarkdownV2")
+            except Exception:
+                context.bot.send_message(chat_id=chat.id, text="Unable to DM the user to notify them of their warning.")
 
-        try: 
-            context.bot.send_message(chat_id=bad_user.id, text=f"You have been warned in *{admin_chat.title}*\. Reason: *{reason}*", parse_mode="MarkdownV2")
-        except Exception:
-            context.bot.send_message(chat_id=chat.id, text="Unable to DM the user to notify them of their warning.")
-
-        context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} warned by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
+        context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} {'warned' if is_note is False else 'noted'} by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
 
