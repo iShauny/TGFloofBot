@@ -63,7 +63,13 @@ def administration_custom(client: TGFloofbotClient):
         warn_helper(client, update, context, args, True)
         return
 
-    def warn_helper(client, update, context, args, is_note):
+    def warn_helper(
+        client: TGFloofbotClient,
+        update: Update,
+        context: CallbackContext,
+        args: Union[UsernoteCommandArgs, WarnCommandArgs],
+        is_note: bool,
+    ) -> None:
         user = update.effective_user
         chat = update.effective_chat
         admin_chat = _resolve_admin_group_id(Update)
@@ -105,6 +111,5 @@ def administration_custom(client: TGFloofbotClient):
                 context.bot.send_message(chat_id=chat.id, text="Unable to DM the user to notify them of their warning.")
 
         context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} {'warned' if is_note is False else 'noted'} by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
-
 
 
