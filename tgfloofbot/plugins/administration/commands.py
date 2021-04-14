@@ -60,12 +60,6 @@ def warn_helper(
     chat = update.effective_chat
     main_group = client.updater.bot.get_chat(chat_id=client.config.main_group)
 
-    if main_group.type != "group":  # group only command
-        context.bot.send_message(
-            chat_id=chat, text="This command can only be used for groups."
-        )
-        return
-
     try:
         bad_user = client.updater.bot.get_chat_member(chat_id=main_group.id, user_id=args.bad_user).user  # type: ignore
         reason = args.warn_message
