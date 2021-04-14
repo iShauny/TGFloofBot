@@ -20,13 +20,13 @@ from . import exceptions
 
 
 class WarnCommandArgs(pydantic.BaseModel):
-    bad_user: str = pydantic.Field(None, description="A raw user ID")
-    warn_message: str = pydantic.Field(None, description="The warning reason")
+    bad_user: str = pydantic.Field(..., description="A raw user ID")
+    warn_message: str = pydantic.Field(..., description="The warning reason")
 
 
 class UsernoteCommandArgs(pydantic.BaseModel):
-    bad_user: str = pydantic.Field(None, description="A raw user ID")
-    warn_message: str = pydantic.Field(None, description="The note")
+    bad_user: str = pydantic.Field(..., description="A raw user ID")
+    warn_message: str = pydantic.Field(..., description="The note")
 
 
 @loader.command(name="warn", help="warn a user", admin=True)
