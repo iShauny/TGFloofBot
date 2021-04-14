@@ -32,9 +32,9 @@ def administration_custom(client: TGFloofbotClient):
         return admin_group
 
     class WarnCommandArgs(pydantic.BaseModel):
-        bad_user: Optional[str] = pydantic.Field(
+        bad_user: str = pydantic.Field(
             None, description="A raw user ID")
-        warn_message: Optional[str] = pydantic.Field(
+        warn_message: str = pydantic.Field(
             None, description="The warning reason")
 
     class UsernoteCommandArgs(pydantic.BaseModel):
@@ -72,18 +72,11 @@ def administration_custom(client: TGFloofbotClient):
             context.bot.send_message(chat_id=chat, text="This command can only be used for groups.")
             return
         
-        if args.bad_user:
-            try:
-                bad_user = client.updater.bot.get_chat_member(chat_id=admin_chat.id, user_id=args.bad_user).user  # type: ignore
-                if args.warn_message:
-                    reason = args.warn_message
-                else:
-                    reason = "No reason provided."
-            except telegram.error.BadRequest:
-                raise exceptions.UserNotFoundException(args.bad_user)
-                return
-        else: 
-            context.bot.send_message(chat_id=chat.id, text="Invalid arguments. Please provide a user ID/mention and a reason.")
+        try:
+            bad_user = client.updater.bot.get_chat_member(chat_id=admin_chat.id, user_id=args.bad_user).user  # type: ignore
+            reason = args.warn_message
+        except telegram.error.BadRequest:
+            raise exceptions.UserNotFoundException(args.bad_user)
             return
 
         try:
