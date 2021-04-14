@@ -79,10 +79,8 @@ def warn_helper(
         warned_by=user.username,
         warned_by_id=user.id,
         reason=reason,
+        is_usernote=is_note,
     )
-
-    if is_note:
-        warning_entry.is_usernote = True
 
     client.db.add(warning_entry)
     client.db.commit()
