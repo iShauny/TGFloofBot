@@ -113,6 +113,5 @@ def administration_custom(client: TGFloofbotClient):
 
         context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} {'warned' if is_note is False else 'noted'} by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
 
-    @loader.command(name="warnlog", help="View a user's warning history", admin=True)
 
 
