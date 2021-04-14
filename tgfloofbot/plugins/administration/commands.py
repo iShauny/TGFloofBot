@@ -58,13 +58,7 @@ def warn_helper(
 ) -> None:
     user = update.effective_user
     chat = update.effective_chat
-    try:
-        main_group = client.updater.bot.get_chat(chat_id=client.config.main_group)
-    except telegram.error.TelegramError:
-        LOG.critical(
-            "Unable to resolve the group ID set in the config! Warning commands not usable!"
-        )
-        return
+    main_group = client.updater.bot.get_chat(chat_id=client.config.main_group)
 
     if main_group.type != "group":  # group only command
         context.bot.send_message(
