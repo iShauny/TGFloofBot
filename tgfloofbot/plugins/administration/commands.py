@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import pydantic
 import telegram
 import datetime
+import typing
 from datetime import timezone
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ParseMode
@@ -16,18 +17,6 @@ from ...logger import LOG
 
 from . import models
 from . import exceptions
-
-
-def _resolve_main_group_id(update, client):
-    try:
-        main_group = client.updater.bot.get_chat(chat_id=client.config.main_group)
-    except telegram.error.TelegramError:
-        LOG.critical(
-            "Unable to resolve the group ID set in the config! Defaulting to context group ID."
-        )
-        main_group = update.effective_chat
-
-    return main_group
 
 
 class WarnCommandArgs(pydantic.BaseModel):
@@ -69,16 +58,22 @@ def warn_helper(
 ) -> None:
     user = update.effective_user
     chat = update.effective_chat
-    admin_chat = _resolve_main_group_id(Update)
+    try:
+        main_group = client.updater.bot.get_chat(chat_id=client.config.main_group)
+    except telegram.error.TelegramError:
+        LOG.critical(
+            "Unable to resolve the group ID set in the config! Warning commands not usable!"
+        )
+        return
 
-    if admin_chat.type != "group":  # group only command
+    if main_group.type != "group":  # group only command
         context.bot.send_message(
             chat_id=chat, text="This command can only be used for groups."
         )
         return
 
     try:
-        bad_user = client.updater.bot.get_chat_member(chat_id=admin_chat.id, user_id=args.bad_user).user  # type: ignore
+        bad_user = client.updater.bot.get_chat_member(chat_id=main_group.id, user_id=args.bad_user).user  # type: ignore
         reason = args.warn_message
     except telegram.error.BadRequest:
         raise exceptions.UserNotFoundException(args.bad_user)
@@ -113,7 +108,7 @@ def warn_helper(
         try:
             context.bot.send_message(
                 chat_id=bad_user.id,
-                text=f"You have been warned in *{admin_chat.title}*\. Reason: *{reason}*",
+                text=f"You have been warned in *{main_group.title}*\. Reason: *{reason}*",
                 parse_mode="MarkdownV2",
             )
         except Exception:
