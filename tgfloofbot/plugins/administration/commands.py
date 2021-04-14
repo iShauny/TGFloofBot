@@ -79,46 +79,32 @@ def warn_helper(
         raise exceptions.UserNotFoundException(args.bad_user)
         return
 
-    try:
-        warning_entry = models.Warning(
-            user_id=bad_user.id,
-            date_added=datetime.datetime.now(timezone.utc),
-            warned_by=user.username,
-            warned_by_id=user.id,
-            reason=reason,
-        )
+    warning_entry = models.Warning(
+        user_id=bad_user.id,
+        date_added=datetime.datetime.now(timezone.utc),
+        warned_by=user.username,
+        warned_by_id=user.id,
+        reason=reason,
+    )
 
-        if is_note:
-            warning_entry.is_usernote = True
+    if is_note:
+        warning_entry.is_usernote = True
 
-        client.db.add(warning_entry)
-        client.db.commit()
+    client.db.add(warning_entry)
+    client.db.commit()
 
-    except Exception as e:
-        LOG.error(
-            f"Error occurred when attempting to insert a {'warning' if is_note is False else 'usernote'} into the database: "
-            + str(e)
-        )
-        context.bot.send_message(
-            chat_id=chat.id,
-            text=f"A fatal error occurred trying to insert the {'warning' if is_note is False else 'usernote'} into the database.",
-        )
-        return
     if not is_note:
         try:
             context.bot.send_message(
                 chat_id=bad_user.id,
-                text=f"You have been warned in *{main_group.title}*\. Reason: *{reason}*",
+                text=f"You have been warned in *{em(main_group.title)}*\. Reason: *{em(reason)}*",
                 parse_mode="MarkdownV2",
             )
-        except Exception:
-            context.bot.send_message(
-                chat_id=chat.id,
-                text="Unable to DM the user to notify them of their warning.",
-            )
+        except Exception as err:
+            raise exceptions.WarningReasonDeliveryException(err)
 
     context.bot.send_message(
         chat_id=chat.id,
-        text=f"*⚠️ User {bad_user.name} {'warned' if is_note is False else 'noted'} by {user.username} with reason {reason}\.*",
+        text=f"*⚠️ User {em(bad_user.name)} {'noted' if is_note else 'warned'} by {em(user.username)} with reason {em(reason)}\.*",
         parse_mode="MarkdownV2",
     )
