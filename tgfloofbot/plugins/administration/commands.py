@@ -62,9 +62,10 @@ def warn_helper(
 
     try:
         bad_user = client.updater.bot.get_chat_member(chat_id=main_group.id, user_id=args.bad_user).user  # type: ignore
-        reason = args.warn_message
     except telegram.error.BadRequest:
         raise exceptions.UserNotFoundException(args.bad_user)
+
+    reason = args.warn_message
 
     warning_entry = models.Warning(
         user_id=bad_user.id,
