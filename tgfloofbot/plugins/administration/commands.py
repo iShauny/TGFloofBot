@@ -25,8 +25,8 @@ class WarnCommandArgs(pydantic.BaseModel):
 
 
 class UsernoteCommandArgs(pydantic.BaseModel):
-    bad_user: Optional[str] = pydantic.Field(None, description="A raw user ID")
-    warn_message: Optional[str] = pydantic.Field(None, description="The note")
+    bad_user: str = pydantic.Field(None, description="A raw user ID")
+    warn_message: str = pydantic.Field(None, description="The note")
 
 
 @loader.command(name="warn", help="warn a user", admin=True)
