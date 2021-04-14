@@ -71,7 +71,6 @@ def warn_helper(
         reason = args.warn_message
     except telegram.error.BadRequest:
         raise exceptions.UserNotFoundException(args.bad_user)
-        return
 
     warning_entry = models.Warning(
         user_id=bad_user.id,
