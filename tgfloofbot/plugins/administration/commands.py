@@ -102,8 +102,8 @@ def administration_custom(client: TGFloofbotClient):
             client.db.commit()
 
         except Exception as e:
-            LOG.error("Error occurred when attempting to insert a {'warning' if is_note is False else 'usernote'} into the database: " + str(e))
-            context.bot.send_message(chat_id=chat.id, text="A fatal error occurred trying to insert the {'warning' if is_note is False else 'usernote'} into the database.")
+            LOG.error(f"Error occurred when attempting to insert a {'warning' if is_note is False else 'usernote'} into the database: " + str(e))
+            context.bot.send_message(chat_id=chat.id, text=f"A fatal error occurred trying to insert the {'warning' if is_note is False else 'usernote'} into the database.")
             return
         if not is_note:
             try: 
@@ -112,4 +112,7 @@ def administration_custom(client: TGFloofbotClient):
                 context.bot.send_message(chat_id=chat.id, text="Unable to DM the user to notify them of their warning.")
 
         context.bot.send_message(chat_id=chat.id, text=f"*⚠️ User {bad_user.name} {'warned' if is_note is False else 'noted'} by {user.username} with reason {reason}\.*", parse_mode="MarkdownV2")
+
+    @loader.command(name="warnlog", help="View a user's warning history", admin=True)
+
 
